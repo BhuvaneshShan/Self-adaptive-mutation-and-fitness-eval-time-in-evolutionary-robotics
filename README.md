@@ -1,0 +1,6 @@
+# Self-adaptive-mutation-and-fitness-eval-time-in-evolutionary-robotics
+Final Year Project - Analysis on self-adaptive mutation step sizes and fitness evaluation time in online onboard evolutionary robotics using ROBOROBO simulator
+
+In on-line onboard evolutionary robotics, the robots behavior is found to be greatly influenced by the two parameters: Mutation step size (M) and Fitness Evaluation Time (T).  
+Earlier, M and T were pre-calculated off-line before deploying the robot. But for practical purposes there has been an inherent need for adjusting the parameters of the EA on-the-fly. Recently, self-adaptive T has been introduced which has proven to give decent if not very good results against traditional T’s for hybrid model of robots. The most influential factor to govern evolution in our application is the mutation operator. So, this project aims to analyse the performance of the swarm of robots in an assigned task by implementing Self-Adaptive Mutation Step Size along with self-adaptive Fitness Evaluation Time and compare it with the results obtained with self-adaptive T only and other mutation size approaches. 
+The proposed method will test the performance of the swarm of robots in an environment with obstacles and resources which is similar to foraging bush method. 
