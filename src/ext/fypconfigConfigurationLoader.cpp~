@@ -1,0 +1,140 @@
+#include "Config/fypconfigConfigurationLoader.h"
+
+#include "fyp/include/fypWorldObserver.h"
+#include "fyp/include/fypAgentWorldModel.h"
+#include "fyp/include/fypAgentObserver.h"
+#include "fyp/include/fypControlArchitecture.h"
+#include "fyp/include/fypSharedData.h"
+#include "fyp/include/fypController.h"
+#include "fyp/include/fypSharedData.h"
+#include "fyp/include/Subscenario.h"
+
+#include "World/RobotAgentWorldInterface.h"
+
+VariableTConfigurationLoader::VariableTConfigurationLoader()
+{
+	// create the single instance of Agent-World Interface.
+	_AgentWorldInterface = new RobotAgentWorldInterface();
+	readProperties(&gProperties);
+}
+
+VariableTConfigurationLoader::~VariableTConfigurationLoader()
+{
+	//nothing to do
+	delete _AgentWorldInterface;
+}
+
+
+WorldObserver* VariableTConfigurationLoader::make_WorldObserver(World* wm)
+{
+	return new VariableTWorldObserver(wm);
+}
+
+RobotAgentWorldModel* VariableTConfigurationLoader::make_RobotAgentWorldModel()
+{
+	return new VariableTAgentWorldModel();
+}
+
+AgentObserver* VariableTConfigurationLoader::make_AgentObserver(RobotAgentWorldModel* wm)
+{
+	return new VariableTAgentObserver(wm);
+}
+
+BehaviorControlArchitecture* VariableTConfigurationLoader::make_BehaviorControlArchitecture(RobotAgentWorldModel* wm)
+{
+	return new VariableTControlArchitecture(wm);
+}
+
+RobotAgentWorldInterface* VariableTConfigurationLoader::make_RobotAgentWorldInterface()
+{
+	return _AgentWorldInterface;
+}
+
+bool VariableTConfigurationLoader::readProperties(ExtendedProperties *gProperties)
+{
+	bool returnValue = true;
+	
+	gProperties->checkAndGetPropertyValue("evolutionStepsPerCandidate", &EvolutionaryControlArchitecture::stepsPerCandidate, true);
+	
+	string fitnessCalculation;
+	gProperties->checkAndGetPropertyValue("evolutionFitnessCalculation", &fitnessCalculation, true);
+	if (fitnessCalculation == "average") {
+		EvolutionaryControlArchitecture::fitnessCalculation = EvolutionaryControlArchitecture::AVERAGE;
+	} else if (fitnessCalculation == "cumulative") {
+		EvolutionaryControlArchitecture::fitnessCalculation = EvolutionaryControlArchitecture::CUMULATIVE;
+	} else {
+		std::cerr << "[CORRUPT] evolutionFitnessCalculation method '" << fitnessCalculation << "' is invalid." << std::endl;
+		returnValue = false;
+	}
+
+	gProperties->checkAndGetPropertyValue("controllerInitialMutationStepSize", &Controller::initialMutationStepSize, true);
+	gProperties->checkAndGetPropertyValue("populationMu", &PopulationControlArchitecture::mu, true);
+	gProperties->checkAndGetPropertyValue("populationReEvaluationRate", &PopulationControlArchitecture::reEvaluationRate, true);
+	gProperties->checkAndGetPropertyValue("populationCrossoverRate", &PopulationControlArchitecture::crossoverRate, true);
+	gProperties->checkAndGetPropertyValue("populationMutationRate", &PopulationControlArchitecture::mutationRate, true);
+	gProperties->checkAndGetPropertyValue("newscastCacheSize", &VariableTControlArchitecture::cacheSize, true);
+	gProperties->checkAndGetPropertyValue("newscastItemTTL", &VariableTControlArchitecture::itemTTL, true);
+	
+	gProperties->checkAndGetPropertyValue("evolveEvaluationTime", &VariableTControlArchitecture::evolveEvaluationTime, true);
+	gProperties->checkAndGetPropertyValue("minEvaluationTime", &VariableTControlArchitecture::minEvaluationTime, true);
+	gProperties->checkAndGetPropertyValue("maxEvaluationTime", &VariableTControlArchitecture::maxEvaluationTime, true);
+
+	gProperties->checkAndGetPropertyValue("gMaxEnergy", &VariableTSharedData::MAX_ENERGY, true);
+	gProperties->checkAndGetPropertyValue("gStartEnergy", &VariableTSharedData::START_ENERGY, true);
+    
+    gProperties->checkAndGetPropertyValue("gEnableEnergySmellSensor", &VariableTController::USE_SMELL_SENSOR, true);
+    gProperties->checkAndGetPropertyValue("gEnergySmellRange", &VariableTController::ENERGY_SMELL_RANGE, true);
+    gProperties->checkAndGetPropertyValue("gEnableLocalEnergySensors", &VariableTController::USE_LOCAL_ENERGY_SENSORS, true);
+    
+    gProperties->checkAndGetPropertyValue("gAgentNNHiddenLayerSize", &VariableTController::HIDDEN_LAYER_SIZE, true);
+    
+	gProperties->checkAndGetPropertyValue("gFitnessLogFilename", &VariableTSharedData::gFitnessLogFilename, true);
+
+	returnValue &= this->readSubscenarios(gProperties);
+
+	return returnValue;
+}
+
+bool VariableTConfigurationLoader::readSubscenarios(ExtendedProperties *gProperties)
+{
+    char buf[1024];
+    bool returnValue = true;
+
+    if (gProperties->hasProperty("gNumSubscenarios")) {
+        int numSubscenarios = 0;
+        gProperties->checkAndGetPropertyValue("gNumSubscenarios", &numSubscenarios, true);
+
+        for (int i = 1; i <= numSubscenarios; i++) {
+            Subscenario ss;
+
+            buf[sprintf(buf, "gSubscenario%dMaxEnergyPoints", i)] = 0;
+            gProperties->checkAndGetPropertyValue(buf, &ss.maxEnergyPoints, true);
+            buf[sprintf(buf, "gSubscenario%dRuntime", i)] = 0;
+            gProperties->checkAndGetPropertyValue(buf, &ss.runtime, true);
+            buf[sprintf(buf, "gSubscenario%dEnergyDensityImageFilename", i)] = 0;
+            std::string filename = gProperties->getProperty(buf);
+            ss.energyDistribution = new ImageBasedEnergyDistribution(filename);
+
+            VariableTSharedData::subscenarios.push_back(ss);
+        }
+    }
+
+    if (gProperties->hasProperty("gProgramme")) {
+        std::string prog = gProperties->getProperty("gProgramme");
+
+        istringstream iss(prog);
+        unsigned int ssNo;
+        while (iss >> ssNo) {
+            if ((ssNo < 1) || (ssNo > VariableTSharedData::subscenarios.size())) {
+                std::cerr << "[CORRUPT] Invalid subscenario number '" << ssNo
+                        << "' in programme (expecting 1 to "
+                        << VariableTSharedData::subscenarios.size()  << ")" << std::endl;
+                return false;
+            }
+
+            VariableTSharedData::gProgramme.push_back(ssNo);
+        }
+    }
+
+    return returnValue;
+}

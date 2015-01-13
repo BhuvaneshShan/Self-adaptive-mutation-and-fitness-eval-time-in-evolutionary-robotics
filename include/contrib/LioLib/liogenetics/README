@@ -1,0 +1,2 @@
+Framework for genetic operators. Template-based, for now; this doesn't seem to 
+affect binary size too much if -O2 compilation is used.

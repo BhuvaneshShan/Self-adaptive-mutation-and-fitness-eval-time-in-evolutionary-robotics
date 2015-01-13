@@ -1,0 +1,185 @@
+/**************************************************//*
+Main program to test AHHS.
+
+This file includes the main function to start the program, the
+function of a single step of the robot, and the function to get the
+fitness into the evolvable.
+
+@ author: Juergen Stradner
+
+@ date: 20091015
+*************************************************/
+
+
+#include <iostream>
+#include <string.h>
+#include <vector>
+#include <stdio.h>
+
+#include "AHHS.h"
+
+using namespace std;
+
+/**********************************************************//**
+Starts the simulation. Introduces an instance of the environment and
+then the evolution manager which is responsible for the evolution
+during the simulation. Then the run is started by calling the
+singleRun function.
+
+@author Jürgen Stradner
+
+@date 20110329
+**************************************************************/
+int main(int argc, char **argv)
+{
+  int nr_of_steps = 100;
+  AHHS* ahhs;
+  int nr_of_compartments = 0;
+  int nr_of_hormones = 0;
+  int nr_of_rules = 0;
+  int nr_of_inputs = 0;
+  int nr_of_outputs = 0;
+  string path;
+  string infile_name;
+  ifstream *infile;
+  string line;
+  string item;
+  int value;
+  unsigned int field_counter = 0;
+  string outfile_name("../result.txt");
+  FILE* outfile;
+  //ofstream outfile;
+
+  if (argc != 2) {
+    path = "../def/";
+    const char* path_str = path.c_str();
+    printf("Warning: no input path given. Using default path. Nr. of inputs: %d. 1 is needed. Running default: %s \n", argc-1, path_str);
+  }
+  else {
+    path = argv[1];
+    cout << path << endl;
+  }
+
+  ahhs = new AHHS(path);
+
+  infile_name.assign(path);
+  infile_name.append("ahhs");
+  infile = new std::ifstream(infile_name.c_str());
+  if (!(infile->is_open())) {
+    cout << "Main::main: File '" << infile_name << "' does not exist. Check your config file! Abort.\n";
+    exit(0);
+  }
+  while (getline (*infile, line)) {
+    istringstream linestream(line);
+    while (getline (linestream, item, ';')) {
+      value = atoi(item.c_str());
+      switch (field_counter) {
+      case 0:
+	nr_of_compartments = value;
+	break;
+      case 1:
+	nr_of_hormones = value;
+	break;
+      case 2:
+	nr_of_rules = value;
+	break;
+      case 3:
+	nr_of_inputs = value;
+	break;
+      case 4:
+	nr_of_outputs = value;
+	break;
+      case 5:
+	break;
+      case 6:
+	break;
+      case 7:
+	break;
+      default:
+	std::cout << "Main::main: Too many fields in ahhs definition file. Please check. Aborting.\n";
+      exit(1);
+      break;
+      }
+      //std::cout << "field_counter: " << field_counter << ": " << value << std::endl;
+      field_counter++;
+    }
+    // fieldcounter is 1 greater than it should be
+    if (field_counter != 8) {
+      std::cout << "Main::main: Not enough fields in ahhs definition file. Please check. Aborting.\n";
+      exit(1);
+    }
+  }
+  vector<double> input_value(nr_of_inputs, 0.5);
+
+  outfile = fopen(outfile_name.c_str(), "w");
+
+  //ahhs->setHormoneConcentration(0,0,1.0);
+  
+  //*** Filling first line of output file with time step 0: starting conditions ***//
+  fprintf(outfile, "%03d ", 0);
+
+  for (int j = 0; j < nr_of_inputs; j++) { 
+    fprintf(outfile, "%6.5f ", input_value[j]);
+  }
+  for (int j = 0; j < nr_of_compartments; j++) { 
+    for (int k = 0; k < nr_of_hormones; k++) { 
+      fprintf(outfile, "%6.5f ", ahhs->getHormoneConcentration(j,k));
+    }
+  }
+  for (int j = 0; j < nr_of_outputs; j++) { 
+    fprintf(outfile, "%6.5f ", ahhs->getValueFromActuator(j));
+  }
+  fprintf(outfile, "\n");
+  //********************************************************************************//
+
+  for (int i=1; i <= nr_of_steps; i++) {
+    for (int j = 0; j < nr_of_inputs; j++) { 
+      //input_value[j] = (double)i/(double)nr_of_steps;
+      input_value[j] = 0.5;
+    }
+    
+    for (int j = 0; j < nr_of_inputs; j++) { 
+      ahhs->setValueToSensor(j, input_value[j]);
+    }
+    
+        
+    ahhs->act();
+    
+    //outfile << i << " ";
+    fprintf(outfile, "%03d ", i);
+    for (int j = 0; j < nr_of_inputs; j++) { 
+      //cout << sensorValue0 << " " << sensorValue1 << " ";
+      //outfile << input_value[j] << " ";
+      fprintf(outfile, "%6.5f ", input_value[j]);
+    }
+    for (int j = 0; j < nr_of_compartments; j++) { 
+      for (int k = 0; k < nr_of_hormones; k++) { 
+	//cout << " comp: " << j << endl;
+	//outfile << ahhs->getHormoneConcentration(j,k) << " ";
+	fprintf(outfile, "%6.5f ", ahhs->getHormoneConcentration(j,k));
+      }
+    }
+    for (int j = 0; j < nr_of_outputs; j++) { 
+      //cout << ahhs->getValueFromActuator(j) << " ";
+      //outfile << ahhs->getValueFromActuator(j) << " ";
+      fprintf(outfile, "%6.5f ", ahhs->getValueFromActuator(j));
+    }
+    //outfile << endl;
+    fprintf(outfile, "\n");
+  }
+  //outfile.close();
+  fclose(outfile);
+
+  delete ahhs;
+  delete infile;
+
+  return(0);
+} // main
+
+
+
+
+
+
+
+

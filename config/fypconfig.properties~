@@ -1,0 +1,170 @@
+# General program options
+
+ConfigurationLoaderObjectName           = fypconfigConfigurationLoader
+gVerbose                                = false
+gBatchMode                              = false
+
+# Output files
+
+gDumpProperties                         = false
+gLogFilename                            = /dev/null
+gFitnessLogFilename                     = logs/fitness.log
+gNormalizedFitnessLogFilename		= logs/normFitness.log	
+gLogCommentText                         = (under-development)
+
+# General simulation parameters
+Iteration
+gNbOfAgents                             = 50
+gRandomSeed                             = 1
+
+gUseOrganisms                           = false
+
+# Environment description
+
+gRiverbed                               = false
+
+gForegroundImageFilename                = data/fypfiles/foreground.png
+gEnvironmentImageFilename               = data/fypfiles/environment.png
+gBackgroundImageFilename                = data/fypfiles/background.png
+gZoneImageFilename                      = data/fypfiles/zones.png
+gZoneCaptionPrefixFilename              = data/zonecaption
+
+gScreenWidth                            = 1024
+gScreenHeight                           = 536
+gSpawnWidth                             = 1024
+gSpawnHeight                            = 536
+
+# Agent structure and capabilities
+
+gAgentMaskImageFilename                 = data/fypfiles/med-agent-mask.png
+gAgentPositiveMaskImageFilename         = data/fypfiles/med-agent-mask.png
+gAgentNegativeMaskImageFilename         = data/fypfiles/med-agent-mask.png
+gAgentSpecsImageFilename                = data/fypfiles/med-agent-specs.png
+
+gMaxTranslationalSpeed                  = 2
+gMaxTranslationalDeltaValue             = 2 # value btw 0 and gMaxRotationalSpeed
+gMaxRotationalSpeed                     = 8
+gMaxSpeedOnXaxis                        = 20
+gMaxSpeedOnYaxis                        = 20
+gLocomotionMode                         = 0
+
+gSensorRange                            = 14
+gEnableDitchSensors                     = false
+gEnableEnergySmellSensor                = true
+gEnergySmellRange                       = 128
+gEnableLocalEnergySensors               = true
+
+gAgentNNHiddenLayerSize                 = 3
+
+# Communication parameters
+
+gMaxRadioDistance                       = -1
+gRadioNetwork                           = false
+newscastCacheSize                       = 4
+newscastItemTTL                         = 8
+
+# Energy parameters
+
+gEnergyMode                             = true
+gStartEnergy                            = 0
+gMaxEnergy                              = 100000
+gEnergyPointValue                       = 100
+
+gMaxEnergyPoints                        = 200
+gEnergyDensityImageFilename             = data/fypfiles/density-normal.png
+gEnergyPointRadius                      = 4.0
+gEnergyPointRespawnLagMaxValue          = 0
+initLock                                = 0.0
+iterationMax                            = 40
+
+VisibleEnergyPoint                      = true
+gEnergyPoints_alwaysRender              = false
+gShowAgentEnergyPoints                  = false
+
+# Simulation programme
+
+gProgramme                              = 2
+gMaxIt                                  = 40000
+
+# Subscenario definitions
+
+gNumSubscenarios                        = 3
+
+gSubscenario1EnergyDensityImageFilename = data/fypfiles/density-normal.png
+gSubscenario1MaxEnergyPoints            = 50
+gSubscenario1Runtime                    = 0
+
+gSubscenario2EnergyDensityImageFilename = data/fypfiles/density-patches.png
+gSubscenario2MaxEnergyPoints            = 150
+gSubscenario2Runtime                    = 40000
+
+gSubscenario3EnergyDensityImageFilename = data/fypfiles/density-near-walls.png
+gSubscenario3MaxEnergyPoints            = 150
+gSubscenario3Runtime                    = 0
+
+# Evolutionary algorithm parameters
+
+useProposedEvalTimeMethod		= false
+useDerandomizedMuStepSizeApproach	= false
+
+evolutionFitnessCalculation             = average
+evolutionStepsPerCandidate              = 500
+evolveEvaluationTime                    = true
+minEvaluationTime                       = 50
+maxEvaluationTime                       = 3000
+
+populationMu                            = 3
+populationReEvaluationRate              = 0.5
+populationCrossoverRate                 = 0.05
+populationMutationRate                  = 1
+populationNumberOfParents               = 2
+
+controllerInitialMutationStepSize       = 0.01
+controllerMutationStepSizeMinimum       = 0.001
+
+# Display options
+
+gDisplayMode                            = 0
+gFastDisplayModeSpeed                   = 60
+gFramesPerSecond                        = 200
+gParallaxFactor                         = 1
+
+gAgentRegistration                      = true
+gNiceRendering                          = true
+
+gDisplaySensors                         = true
+gRenderRobotId                          = false
+gDisplayZoneCaption                     = false
+
+gEnergyPointColor                       = ffff00ff
+gSensorRayFreeColor                     = 555050ff
+gSensorRayObstacleColor                 = ff0000ff
+gSensorRayEnergyColor                   = ffff00ff
+
+gFontName                               = /usr/share/fonts/truetype/ubuntu-font-family/Ubuntu-R.ttf
+
+gVideoRecording                         = false
+
+# Debugging features
+
+gPauseMode                              = false
+SlowMotionMode                          = false
+gUserCommandMode                        = false
+
+gInspectAgent                           = false
+gInspectorMode                          = false
+gInspectorAgent                         = false
+gInspectorAgentXStart                   = 100
+gInspectorAgentYStart                   = 355
+gMoveStepWidth                          = 1
+gMoveStepHeight                         = 1
+
+gAgentCounter                           = 0
+gAgentIndexFocus                        = 0
+
+# Not used
+
+gAgentWidth                             = 0
+gAgentHeight                            = 0
+gAreaWidth                              = 0
+gAreaHeight                             = 0
